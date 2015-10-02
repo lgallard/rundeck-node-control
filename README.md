@@ -1,8 +1,12 @@
+<strong>Rundeck Node Control</strong>
+
 This project contains scripts to let you create and delete nodes from Rundeck, without using third-party node providers. 
 
 It takes advantage of Rundeck jobs power to modify resources files using provided parameters: Project name, Node name, hostame, etc.
 
-Install:
+<img src="https://c1.staticflickr.com/1/613/21272642884_75d155e200_z.jpg">
+
+<strong>Install</strong>
 
 - Copy rundeckNodeCtl python script into /usr/local/bin
 - Create a project for node administration, for Example *Nodes_Admin*

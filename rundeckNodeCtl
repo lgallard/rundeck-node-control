@@ -1,0 +1,145 @@
+#!/usr/bin/python
+
+import os
+import sys
+import xml.etree.ElementTree as ET
+
+from sys import argv
+
+
+class rundeckNodeCtl:
+
+	STATE_OK=0
+	STATE_REMOVED=1
+	STATE_NODE_NOT_ADDED=2
+	STATE_NODE_NOT_FOUND=3
+	STATE_RESOURCE_FILE_NOT_FOUND=4
+
+	def add(self, project, node, description, hostname, osArch, osFamily, osName, osVersion):
+		
+		file_path = path+'/'+project+'/etc/resources.xml'
+
+		try:
+			tree = ET.parse(file_path)
+		except IOError:
+			sys.exit(self.STATE_RESOURCE_FILE_NOT_FOUND)
+
+
+		root = tree.getroot()
+
+		new_node = ET.Element("node")
+
+		new_node.set('name', node)
+		new_node.set('description', description)
+		new_node.set('tags', '')
+		new_node.set('hostname', hostname)
+		new_node.set('osArch', osArch)
+		new_node.set('osFamily', osFamily)
+		new_node.set('osName', osName)	
+		new_node.set('osVersion', osVersion)
+		new_node.set('username',"rundeck")
+		new_node.set('ssh-keypath',"/var/lib/rundeck/.ssh/id_rsa")
+		new_node.set('ssh-authentication',"privateKey")
+
+		# Discard already added nodes	
+		for element in root.iter('node'):
+			if(element.get('name') == node):
+				sys.exit(self.STATE_NODE_NOT_ADDED)
+
+		# Add new node
+		root.append(new_node)
+		tree.write(file_path)
+		
+		sys.exit(self.STATE_OK)
+			
+
+	def delete(self, project, node):
+
+		file_path = path+'/'+project+'/etc/resources.xml'
+
+		try:
+			tree = ET.parse(file_path)
+		except IOError:
+			sys.exit(self.STATE_RESOURCE_FILE_NOT_FOUND)
+			
+		root = tree.getroot()
+
+
+		# Delete node
+		found_node = False
+		for element in root.iter('node'):
+			if(element.get('name') == node):
+				root.remove(element)
+				found_node = True
+		
+		if(found_node == True):
+				tree.write(file_path)
+				sys.exit(self.STATE_OK)
+		else:
+			# Couldn't find node 
+			sys.exit(self.STATE_NODE_NOT_FOUND)
+
+
+
+if __name__ == "__main__":
+	
+	length = len(argv)
+
+	try:
+
+		if length == 11:
+			script, action, path, project, node, description, hostname, osArch, osFamily, osName, osVersion = argv
+
+			if(action != "add"):
+				raise NameError()
+			
+		if length == 5:
+			script, action, path, project, node = argv
+
+			if(action != "del"):
+				raise NameError()
+			
+		if (length != 11 and length != 5):
+			raise NameError()
+	except:
+		print """
+		Usage:  
+			rundeckNodeCtl action path project node description hostname osArch osFamily osName osVersion
+
+			Example:
+
+			rundeckNodeCtl add /var/rundeck/projects Project_Test rundeck-node "This is an examle" ve02-itbox  amd64 unix Linux 3.13.0-62-generic
+			rundeckNodeCtl del /var/rundeck/projects Project_Test rundeck-node 
+		"""
+		sys.exit(1)
+
+
+	# Create object
+	rundeck = rundeckNodeCtl()
+
+	if(action == "add"):
+		rundeck.add(project, node, description, hostname, osArch, osFamily, osName, osVersion)
+
+	if(action == "del"):
+		rundeck.delete(project, node)
+
+	# Ehh, dunno
+	elif(action != "add" and action != "del"):
+		print """
+		The >> %s << action is not recognized!
+
+                Usage:  
+                        rundeckNodeCtl action path project node description hostname osArch osFamily osName osVersion
+
+                        Example:
+
+                        rundeckNodeCtl add /var/rundeck/projects Project_Test rundeck-node "This is an examle" ve02-itbox  amd64 unix Linux 3.13.0-62-generic
+                        rundeckNodeCtl del /var/rundeck/projects Project_Test rundeck-node 
+
+		"""
+
+
+	# Happy ending
+	sys.exit(0)
+
+		

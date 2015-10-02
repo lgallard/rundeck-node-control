@@ -1,0 +1,59 @@
+<joblist>
+  <job>
+    <id>77ba371f-66c8-4be4-9167-d169594e25e1</id>
+    <loglevel>INFO</loglevel>
+    <sequence keepgoing='true' strategy='node-first'>
+      <command>
+        <scriptargs>del /var/rundeck/projects</scriptargs>
+        <script><![CDATA[#!/bin/bash
+
+STATE_OK=0
+STATE_NODE_NOT_FOUND=3
+STATE_RESOURCE_FILE_NOT_FOUND=4
+
+
+echo "Project: $RD_OPTION_1_PROJECT"
+echo "Node: $RD_OPTION_2_NODE"
+echo "Resource: $2/$RD_OPTION_1_PROJECT/etc/resource.xml"
+
+`/usr/local/bin/rundeckNodeCtl $1 $2 $RD_OPTION_1_PROJECT $RD_OPTION_2_NODE`
+ 
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq $STATE_NODE_NOT_FOUND ]; then
+	echo "Error: node not found"
+	exit -1
+fi
+
+if [ $EXIT_CODE -eq $STATE_RESOURCE_FILE_NOT_FOUND ]; then
+	echo "Error: Project not found"
+	exit -1
+fi
+
+if [ $EXIT_CODE -eq $STATE_OK ]; then
+	echo "Node removed sucessfully"
+	exit $STATE_OK
+fi
+
+
+]]></script>
+      </command>
+    </sequence>
+    <description>Remove node</description>
+    <name>Remove node</name>
+    <context>
+      <project>node_administration</project>
+      <options>
+        <option name='1_Project' required='true'>
+          <description>Project Name</description>
+        </option>
+        <option name='2_Node' required='true'>
+          <description><![CDATA[Node Name:
+
+Example: Node1]]></description>
+        </option>
+      </options>
+    </context>
+    <uuid>77ba371f-66c8-4be4-9167-d169594e25e1</uuid>
+  </job>
+</joblist>

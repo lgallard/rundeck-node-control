@@ -16,7 +16,7 @@ echo "Project: $RD_OPTION_1_PROJECT"
 echo "Node: $RD_OPTION_2_NODE"
 echo "Resource: $2/$RD_OPTION_1_PROJECT/etc/resource.xml"
 
-`/usr/local/bin/rundeckNodeCtl $1 $2 $RD_OPTION_1_PROJECT $RD_OPTION_2_NODE`
+`/usr/local/bin/rundeckNodeCtl $1 $2 "$RD_OPTION_1_PROJECT" "$RD_OPTION_2_NODE"`
  
 EXIT_CODE=$?
 

@@ -15,7 +15,7 @@ class rundeckNodeCtl:
 	STATE_NODE_NOT_FOUND=3
 	STATE_RESOURCE_FILE_NOT_FOUND=4
 
-	def add(self, project, node, description, hostname, osArch, osFamily, osName, osVersion):
+	def add(self, project, node, description, hostname, osArch, osFamily, osName, osVersion, tags="", username="rundeck", sshKeypath="/var/lib/rundeck/.ssh/id_rsa", sshAuthentication="privateKey"):
 		
 		file_path = path+'/'+project+'/etc/resources.xml'
 
@@ -31,15 +31,15 @@ class rundeckNodeCtl:
 
 		new_node.set('name', node)
 		new_node.set('description', description)
-		new_node.set('tags', '')
+		new_node.set('tags', tags)
 		new_node.set('hostname', hostname)
 		new_node.set('osArch', osArch)
 		new_node.set('osFamily', osFamily)
 		new_node.set('osName', osName)	
 		new_node.set('osVersion', osVersion)
-		new_node.set('username',"rundeck")
-		new_node.set('ssh-keypath',"/var/lib/rundeck/.ssh/id_rsa")
-		new_node.set('ssh-authentication',"privateKey")
+		new_node.set('username', username)
+		new_node.set('ssh-keypath', sshKeypath)
+		new_node.set('ssh-authentication',sshAuthentication)
 
 		# Discard already added nodes	
 		for element in root.iter('node'):
@@ -87,28 +87,28 @@ if __name__ == "__main__":
 
 	try:
 
-		if length == 11:
-			script, action, path, project, node, description, hostname, osArch, osFamily, osName, osVersion = argv
-
+		if length == 15:
+			script, action, path, project, node, description, hostname, osArch, osFamily, osName, osVersion, tags, username, sshKeypath, sshAuthentication = argv
+	
 			if(action != "add"):
 				raise NameError()
 			
 		if length == 5:
 			script, action, path, project, node = argv
-
+	
 			if(action != "del"):
 				raise NameError()
-			
-		if (length != 11 and length != 5):
+		
+		if (length != 15 and length != 5):
 			raise NameError()
 	except:
 		print """
 		Usage:  
-			rundeckNodeCtl action path project node description hostname osArch osFamily osName osVersion
+			rundeckNodeCtl action path project node description hostname osArch osFamily osName osVersion tags username ssh-keypath, ssh-authentication
 
 			Example:
 
-			rundeckNodeCtl add /var/rundeck/projects Project_Test rundeck-node "This is an examle" ve02-itbox  amd64 unix Linux 3.13.0-62-generic
+			rundeckNodeCtl add /var/rundeck/projects Project_Test rundeck-node "This is an example" remote-node:2222 amd64 unix Linux 3.13.0-62-generic "Linux, remote"
 			rundeckNodeCtl del /var/rundeck/projects Project_Test rundeck-node 
 		"""
 		sys.exit(1)
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 	rundeck = rundeckNodeCtl()
 
 	if(action == "add"):
-		rundeck.add(project, node, description, hostname, osArch, osFamily, osName, osVersion)
+		rundeck.add(project, node, description, hostname, osArch, osFamily, osName, osVersion, tags, username, sshKeypath, sshAuthentication)
 
 	if(action == "del"):
 		rundeck.delete(project, node)

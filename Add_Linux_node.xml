@@ -1,57 +1,7 @@
 <joblist>
   <job>
-    <id>3de99492-cf8b-47d9-9cfe-4b344dfa949d</id>
-    <loglevel>INFO</loglevel>
-    <sequence keepgoing='true' strategy='node-first'>
-      <command>
-        <scriptargs>add /var/rundeck/projects</scriptargs>
-        <script><![CDATA[#!/bin/bash
-
-STATE_OK=0
-STATE_NODE_NOT_ADDED=2
-STATE_RESOURCE_FILE_NOT_FOUND=4
-
-
-echo "Project: $RD_OPTION_1_PROJECT"
-echo "Node: $RD_OPTION_2_NODE"
-echo "Hostname: $RD_OPTION_3_HOSTNAME"
-echo "Description: $RD_OPTION_DESCRIPTION"
-echo "OS Arch: $RD_OPTION_OSARCH"
-echo "OS Faily: $RD_OPTION_OSFAMILY"
-echo "OS Name: $RD_OPTION_OSNAME"
-echo "OS Version: $RD_OPTION_OSVERSION"
-echo "Resource: $2/$RD_OPTION_1_PROJECT/etc/resource.xml"
-
-`/usr/local/bin/rundeckNodeCtl $1 $2 "$RD_OPTION_1_PROJECT" "$RD_OPTION_2_NODE" "$RD_OPTION_DESCRIPTION" "$RD_OPTION_3_HOSTNAME" "$RD_OPTION_OSARCH" "$RD_OPTION_OSFAMILY" "$RD_OPTION_OSNAME" "$RD_OPTION_OSVERSION"`
- 
-EXIT_CODE=$?
-
-
-if [ $EXIT_CODE -eq $STATE_NODE_NOT_ADDED ]; then
-	echo "Error: node already added"
-	exit -1
-fi
-
-
-if [ $EXIT_CODE -eq $STATE_RESOURCE_FILE_NOT_FOUND ]; then
-	echo "Error: Project file not found"
-	exit -1
-fi
-
-if [ $EXIT_CODE -eq $STATE_OK ]; then
-	echo "Node added sucessfully"
-	exit $STATE_OK
-fi
-
-
-]]></script>
-      </command>
-    </sequence>
-    <description>Add a Linux node</description>
-    <name>Add Linux node</name>
     <context>
-      <project>node_administration</project>
-      <options>
+      <options preserveOrder='true'>
         <option name='1_Project' required='true'>
           <description>Project Name</description>
         </option>
@@ -73,6 +23,11 @@ Examples:
         <option name='Description'>
           <description>Node Description (optional)</description>
         </option>
+        <option name='Tags'>
+          <description><![CDATA[Comma separted value.
+
+Example: Linux, Debian]]></description>
+        </option>
         <option name='osArch'>
           <description>OS Architecture (if known)</description>
         </option>
@@ -85,8 +40,70 @@ Examples:
         <option name='osVersion'>
           <description>OS Version (if known)</description>
         </option>
+        <option name='sshAuthentication' value='privateKey'>
+          <description>Default: privatekey</description>
+        </option>
+        <option name='sshKeypath' value='/var/lib/rundeck/.ssh/id_rsa'>
+          <description>Default: /var/lib/rundeck/.ssh/id_rsa</description>
+        </option>
+        <option name='username' value='rundeck'>
+          <description>Default: rundeck</description>
+        </option>
       </options>
     </context>
+    <description>Add a Linux node</description>
+    <executionEnabled>true</executionEnabled>
+    <id>3de99492-cf8b-47d9-9cfe-4b344dfa949d</id>
+    <loglevel>INFO</loglevel>
+    <name>Add Linux node</name>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='true' strategy='node-first'>
+      <command>
+        <script><![CDATA[#!/bin/bash
+
+STATE_OK=0
+STATE_NODE_NOT_ADDED=2
+STATE_RESOURCE_FILE_NOT_FOUND=4
+
+
+echo "Project: $RD_OPTION_1_PROJECT"
+echo "Node: $RD_OPTION_2_NODE"
+echo "Hostname: $RD_OPTION_3_HOSTNAME"
+echo "Description: $RD_OPTION_DESCRIPTION"
+echo "OS Arch: $RD_OPTION_OSARCH"
+echo "OS Faily: $RD_OPTION_OSFAMILY"
+echo "OS Name: $RD_OPTION_OSNAME"
+echo "OS Version: $RD_OPTION_OSVERSION"
+echo "Resource: $2/$RD_OPTION_1_PROJECT/etc/resource.xml"
+
+echo "Tags: $RD_OPTION_TAGS"
+echo "Username: $RD_OPTION_USERNAME"
+echo "SSH Keypath: $RD_OPTION_SSHKEYPATH"
+echo "SSH Auth: $RD_OPTION_SSHAUTHENTICATION"
+
+`/usr/local/bin/rundeckNodeCtl $1 $2 "$RD_OPTION_1_PROJECT" "$RD_OPTION_2_NODE" "$RD_OPTION_DESCRIPTION" "$RD_OPTION_3_HOSTNAME" "$RD_OPTION_OSARCH" "$RD_OPTION_OSFAMILY" "$RD_OPTION_OSNAME" "$RD_OPTION_OSVERSION" "$RD_OPTION_TAGS" "$RD_OPTION_USERNAME" "$RD_OPTION_SSHKEYPATH" "$RD_OPTION_SSHAUTHENTICATION"`
+ 
+EXIT_CODE=$?
+
+
+if [ $EXIT_CODE -eq $STATE_NODE_NOT_ADDED ]; then
+	echo "Error: node already added"
+	exit -1
+fi
+
+
+if [ $EXIT_CODE -eq $STATE_RESOURCE_FILE_NOT_FOUND ]; then
+	echo "Error: Project file not found"
+	exit -1
+fi
+
+if [ $EXIT_CODE -eq $STATE_OK ]; then
+	echo "Node added sucessfully"
+	exit $STATE_OK
+fi]]></script>
+        <scriptargs>add /var/rundeck/projects</scriptargs>
+      </command>
+    </sequence>
     <uuid>3de99492-cf8b-47d9-9cfe-4b344dfa949d</uuid>
   </job>
 </joblist>
